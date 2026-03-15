@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'search',
     'shortlisting',
     'integrations',
+    'analytics',
 ]
 
 MIDDLEWARE = [
