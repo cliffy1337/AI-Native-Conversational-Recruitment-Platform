@@ -8,3 +8,5 @@ def job_list(request):
 
 def post_job(request):
     return render(request, 'jobs/post_job.html')
+
+# job list, detail, apply, recruiter dashboard
