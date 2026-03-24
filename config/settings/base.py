@@ -7,9 +7,11 @@ from django.core.exceptions import ImproperlyConfigured
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 
-def get_secret(setting_name, default=None):
+def get_secret(setting_name, default=None, cast=None):
     """Get an environment variable or raise ImproperlyConfigured if required and missing."""
     try:
+        if cast is not None:
+            return config(setting_name, default=default, cast=cast)
         return config(setting_name, default=default)
     except UndefinedValueError:
         raise ImproperlyConfigured(f"Set the {setting_name} environment variable")
