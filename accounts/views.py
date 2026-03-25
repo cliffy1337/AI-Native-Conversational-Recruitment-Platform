@@ -1,53 +1,116 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.utils.translation import gettext_lazy as _
-from django.conf import settings
-from .models import User
-from .forms import CustomSignupForm
-from allauth.account.views import SignupView
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from django.core.exceptions import ValidationError
+import json
 
-class CustomSignupView(SignupView):
-    form_class = CustomSignupForm
-    template_name = 'account/signup.html'
+from .models import User
+from .forms import ProfileForm, ProfilePictureForm
 
 @login_required
 def dashboard(request):
-    """
-    User dashboard based on user type
-    """
-    if request.user.is_recruiter:
-        return render(request, 'accounts/recruiter_dashboard.html')
-    else:
-        return render(request, 'accounts/job_seeker_dashboard.html')
+    """User dashboard view"""
+    # You can add counts from other apps here
+    context = {
+        'user': request.user,
+        'is_recruiter': request.user.is_recruiter,
+        'is_job_seeker': request.user.is_job_seeker,
+        'onboarding_completed': request.user.onboarding_completed,
+        # Add these counts from your applications and jobs apps
+        'total_applications': 0,  # Replace with actual count
+        'total_jobs_posted': 0,    # Replace with actual count
+    }
+    return render(request, 'accounts/dashboard.html', context)
 
 @login_required
 def profile(request):
-    """
-    Edit user profile
-    """
+    """Profile view with edit functionality"""
+    user = request.user
+    
     if request.method == 'POST':
-        # Handle profile update
+        form = ProfileForm(request.POST, instance=user)
+        if form.is_valid():
+            try:
+                form.save()
+                messages.success(request, 'Profile updated successfully.')
+                return redirect('accounts:profile')
+            except ValidationError as e:
+                messages.error(request, str(e))
+    else:
+        form = ProfileForm(instance=user)
+    
+    context = {
+        'form': form,
+        'user': user,
+        'profile_picture_form': ProfilePictureForm(instance=user),
+        'is_recruiter': user.is_recruiter,
+        'is_job_seeker': user.is_job_seeker,
+        'onboarding_completed': user.onboarding_completed,
+    }
+    return render(request, 'accounts/profile.html', context)
+
+@login_required
+@csrf_exempt
+@require_http_methods(["POST"])
+def upload_profile_picture(request):
+    """Handle profile picture upload via AJAX"""
+    try:
+        user = request.user
+        form = ProfilePictureForm(request.POST, request.FILES, instance=user)
+        
+        if form.is_valid():
+            # Save the new picture
+            form.save()
+            
+            return JsonResponse({
+                'success': True,
+                'url': user.profile_picture.url,
+                'message': 'Profile picture updated successfully'
+            })
+        else:
+            # Collect all errors
+            errors = {}
+            for field, field_errors in form.errors.items():
+                errors[field] = [str(error) for error in field_errors]
+            
+            return JsonResponse({
+                'success': False,
+                'errors': errors
+            }, status=400)
+            
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+@login_required
+@csrf_exempt
+@require_http_methods(["DELETE"])
+def delete_profile_picture(request):
+    """Delete profile picture"""
+    try:
         user = request.user
         
-        # Update fields
-        user.first_name = request.POST.get('first_name', user.first_name)
-        user.last_name = request.POST.get('last_name', user.last_name)
-        user.phone = request.POST.get('phone', user.phone)
+        if not user.profile_picture:
+            return JsonResponse({
+                'success': False,
+                'error': 'No profile picture to delete'
+            }, status=400)
         
-        if user.is_recruiter:
-            user.company_name = request.POST.get('company_name', user.company_name)
+        # Delete the picture using the model method
+        user.delete_profile_picture()
         
-        # Handle profile picture upload
-        if 'profile_picture' in request.FILES:
-            user.profile_picture = request.FILES['profile_picture']
+        return JsonResponse({
+            'success': True,
+            'message': 'Profile picture deleted successfully'
+        })
         
-        # Handle resume upload
-        if 'resume' in request.FILES and user.is_job_seeker:
-            user.resume = request.FILES['resume']
-        
-        user.save()
-        messages.success(request, _('Profile updated successfully'))
-        return redirect('accounts:profile')
-    
-    return render(request, 'accounts/profile.html', {'user': request.user})
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)

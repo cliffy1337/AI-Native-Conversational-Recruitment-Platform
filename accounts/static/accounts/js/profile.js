@@ -86,22 +86,25 @@
                     </div>
                 </div>
                 
-                {% if user.phone %}
+                <!-- Display Phone -->
                 <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
                     <p class="text-sm text-gray-600 dark:text-gray-400">
-                        <i class="fas fa-phone-alt mr-2"></i> {{ user.phone }}
+                        <i class="fas fa-phone-alt mr-2"></i> 
+                        {{ user.phone|default:"No phone number provided" }}
+                    </p>
+                </div>
+                
+                <!-- Display Company Name for Recruiters -->
+                {% if user.is_recruiter %}
+                <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                        <i class="fas fa-building mr-2"></i> 
+                        {{ user.company_name|default:"No company name provided" }}
                     </p>
                 </div>
                 {% endif %}
                 
-                {% if user.is_recruiter and user.company_name %}
-                <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
-                    <p class="text-sm text-gray-600 dark:text-gray-400">
-                        <i class="fas fa-building mr-2"></i> {{ user.company_name }}
-                    </p>
-                </div>
-                {% endif %}
-                
+                <!-- Resume Section -->
                 <div class="p-6">
                     <div class="resume-card">
                         <i class="fas fa-file-alt text-indigo-600 dark:text-indigo-400"></i>
@@ -110,14 +113,8 @@
                             <a href="{{ user.resume.url }}" target="_blank" class="block mt-2 text-sm text-indigo-600 dark:text-indigo-400 hover:underline">
                                 <i class="fas fa-download"></i> View Resume
                             </a>
-                            <button id="delete-resume-btn" class="mt-2 text-sm text-red-600 hover:text-red-700">
-                                <i class="fas fa-trash"></i> Delete Resume
-                            </button>
                         {% else %}
                             <p class="text-sm text-gray-500 mt-2">No resume uploaded</p>
-                            <button id="upload-resume-btn" class="mt-2 text-sm text-indigo-600 hover:text-indigo-700">
-                                <i class="fas fa-upload"></i> Upload Resume
-                            </button>
                         {% endif %}
                     </div>
                 </div>
@@ -140,15 +137,12 @@
                     </div>
                 </div>
                 <div class="form-body">
+                    <!-- Display all user information -->
                     <div class="space-y-4">
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="text-sm text-gray-500 dark:text-gray-400">First Name</label>
-                                <p class="font-medium">{{ user.first_name|default:"Not set" }}</p>
-                            </div>
-                            <div>
-                                <label class="text-sm text-gray-500 dark:text-gray-400">Last Name</label>
-                                <p class="font-medium">{{ user.last_name|default:"Not set" }}</p>
+                                <label class="text-sm text-gray-500 dark:text-gray-400">Full Name</label>
+                                <p class="font-medium">{{ user.get_full_name|default:"Not set" }}</p>
                             </div>
                             <div>
                                 <label class="text-sm text-gray-500 dark:text-gray-400">Username</label>
@@ -166,20 +160,16 @@
                                 <label class="text-sm text-gray-500 dark:text-gray-400">User Type</label>
                                 <p class="font-medium">{{ user.get_user_type_display }}</p>
                             </div>
+                            <div>
+                                <label class="text-sm text-gray-500 dark:text-gray-400">Member Since</label>
+                                <p class="font-medium">{{ user.created_at|date:"F j, Y" }}</p>
+                            </div>
                             {% if user.is_recruiter %}
                             <div class="col-span-2">
                                 <label class="text-sm text-gray-500 dark:text-gray-400">Company Name</label>
                                 <p class="font-medium">{{ user.company_name|default:"Not provided" }}</p>
                             </div>
                             {% endif %}
-                            <div>
-                                <label class="text-sm text-gray-500 dark:text-gray-400">Member Since</label>
-                                <p class="font-medium">{{ user.created_at|date:"F j, Y" }}</p>
-                            </div>
-                            <div>
-                                <label class="text-sm text-gray-500 dark:text-gray-400">Last Updated</label>
-                                <p class="font-medium">{{ user.updated_at|date:"F j, Y" }}</p>
-                            </div>
                             <div class="col-span-2">
                                 <label class="text-sm text-gray-500 dark:text-gray-400">Onboarding Status</label>
                                 <p class="font-medium">
@@ -190,16 +180,40 @@
                                     {% endif %}
                                 </p>
                             </div>
+                            <div class="col-span-2">
+                                <label class="text-sm text-gray-500 dark:text-gray-400">Resume/CV</label>
+                                {% if user.resume %}
+                                    <p class="font-medium">
+                                        <a href="{{ user.resume.url }}" target="_blank" class="text-indigo-600 hover:underline">
+                                            <i class="fas fa-file-pdf"></i> View Resume
+                                        </a>
+                                    </p>
+                                {% else %}
+                                    <p class="font-medium text-gray-500">No resume uploaded</p>
+                                {% endif %}
+                            </div>
                         </div>
                         
-                        <!-- Prompts for missing required information -->
+                        <!-- Prompts for missing information -->
+                        {% if user.is_job_seeker and not user.resume %}
+                        <div class="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4 mt-4">
+                            <div class="flex">
+                                <i class="fas fa-file-upload text-yellow-600 dark:text-yellow-400 mt-0.5 mr-3"></i>
+                                <div class="text-sm text-yellow-800 dark:text-yellow-300">
+                                    <strong>Resume not uploaded yet.</strong> 
+                                    <a href="#" class="font-medium underline">Upload your resume</a> to increase your chances of getting hired!
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
                         {% if user.is_recruiter and not user.company_name %}
                         <div class="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4 mt-4">
                             <div class="flex">
                                 <i class="fas fa-building text-yellow-600 dark:text-yellow-400 mt-0.5 mr-3"></i>
                                 <div class="text-sm text-yellow-800 dark:text-yellow-300">
-                                    <strong>Company name is required for recruiters.</strong> 
-                                    <a href="#" id="edit-from-prompt" class="font-medium underline">Add your company name</a> to start posting jobs.
+                                    <strong>Company name not set.</strong> 
+                                    <a href="#" class="font-medium underline">Add your company name</a> to attract more candidates.
                                 </div>
                             </div>
                         </div>
@@ -234,7 +248,7 @@
                     </div>
                 </div>
                 <div class="form-body">
-                    <form method="post" id="profile-form" enctype="multipart/form-data">
+                    <form method="post" id="profile-form">
                         {% csrf_token %}
                         
                         <div class="form-group">
@@ -277,7 +291,7 @@
                         
                         {% if user.is_recruiter %}
                         <div class="form-group">
-                            <label for="id_company_name" class="form-label">Company Name <span class="text-red-500">*</span></label>
+                            <label for="id_company_name" class="form-label">Company Name</label>
                             <input type="text" 
                                    name="company_name" 
                                    id="id_company_name" 
@@ -287,20 +301,6 @@
                             <small class="text-gray-500">Required for recruiters</small>
                         </div>
                         {% endif %}
-                        
-                        <div class="form-group">
-                            <label for="id_resume" class="form-label">Resume/CV</label>
-                            <input type="file" 
-                                   name="resume" 
-                                   id="id_resume" 
-                                   class="form-control"
-                                   accept=".pdf,.doc,.docx">
-                            {% if user.resume %}
-                                <small class="text-gray-500">Current: {{ user.resume.name|cut:"resumes/" }} <br> Leave blank to keep current file.</small>
-                            {% else %}
-                                <small class="text-gray-500">Upload PDF, DOC, or DOCX (Max 5MB)</small>
-                            {% endif %}
-                        </div>
                         
                         <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mb-6">
                             <div class="flex">
@@ -347,21 +347,6 @@
     </div>
 </div>
 
-<!-- Resume Upload Modal -->
-<div id="resume-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
-        <h3 class="text-lg font-semibold mb-4">Upload Resume</h3>
-        <form id="resume-upload-form" enctype="multipart/form-data">
-            {% csrf_token %}
-            <input type="file" name="resume" id="modal-resume" accept=".pdf,.doc,.docx" class="w-full p-2 border rounded">
-            <div class="flex gap-3 mt-4">
-                <button type="submit" class="btn-primary">Upload</button>
-                <button type="button" id="close-modal" class="btn-secondary">Cancel</button>
-            </div>
-        </form>
-    </div>
-</div>
-
 <script>
 // Toggle between view and edit modes
 const viewMode = document.getElementById('view-mode');
@@ -369,26 +354,10 @@ const editMode = document.getElementById('edit-mode');
 const editBtn = document.getElementById('edit-profile-btn');
 const cancelBtn = document.getElementById('cancel-edit-btn');
 
-// Handle edit from prompts
-const editFromPrompt = document.getElementById('edit-from-prompt');
-
 if (editBtn) {
     editBtn.addEventListener('click', () => {
         viewMode.style.display = 'none';
         editMode.style.display = 'block';
-    });
-}
-
-if (editFromPrompt) {
-    editFromPrompt.addEventListener('click', (e) => {
-        e.preventDefault();
-        viewMode.style.display = 'none';
-        editMode.style.display = 'block';
-        const companyField = document.getElementById('id_company_name');
-        if (companyField) {
-            companyField.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            companyField.focus();
-        }
     });
 }
 
@@ -399,99 +368,13 @@ if (cancelBtn) {
     });
 }
 
-// Resume upload modal
-const uploadResumeBtn = document.getElementById('upload-resume-btn');
-const deleteResumeBtn = document.getElementById('delete-resume-btn');
-const resumeModal = document.getElementById('resume-modal');
-const closeModal = document.getElementById('close-modal');
-const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
-
-if (uploadResumeBtn) {
-    uploadResumeBtn.addEventListener('click', () => {
-        resumeModal.classList.remove('hidden');
-        resumeModal.classList.add('flex');
-    });
-}
-
-if (closeModal) {
-    closeModal.addEventListener('click', () => {
-        resumeModal.classList.add('hidden');
-        resumeModal.classList.remove('flex');
-    });
-}
-
-// Handle resume upload via modal
-const resumeUploadForm = document.getElementById('resume-upload-form');
-if (resumeUploadForm) {
-    resumeUploadForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const fileInput = document.getElementById('modal-resume');
-        const file = fileInput.files[0];
-        
-        if (!file) {
-            alert('Please select a file');
-            return;
-        }
-        
-        const formData = new FormData();
-        formData.append('resume', file);
-        
-        try {
-            const response = await fetch('/accounts/profile/upload-resume/', {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': csrfToken ? csrfToken.value : ''
-                },
-                body: formData
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                location.reload();
-            } else {
-                alert(result.error || 'Upload failed');
-            }
-        } catch (error) {
-            console.error('Upload error:', error);
-            alert('An error occurred');
-        }
-    });
-}
-
-// Handle resume deletion
-if (deleteResumeBtn) {
-    deleteResumeBtn.addEventListener('click', async () => {
-        if (!confirm('Are you sure you want to delete your resume?')) return;
-        
-        try {
-            const response = await fetch('/accounts/profile/delete-resume/', {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRFToken': csrfToken ? csrfToken.value : ''
-                }
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                location.reload();
-            } else {
-                alert(result.error || 'Delete failed');
-            }
-        } catch (error) {
-            console.error('Delete error:', error);
-            alert('An error occurred');
-        }
-    });
-}
-
 // Profile picture upload
 document.addEventListener('DOMContentLoaded', function() {
     const pictureInput = document.getElementById('picture-upload');
     const profilePictureImg = document.getElementById('profile-picture-img');
     const deleteBtn = document.getElementById('delete-picture');
     const uploadProgress = document.getElementById('upload-progress');
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
     
     if (pictureInput) {
         pictureInput.addEventListener('change', async function(e) {

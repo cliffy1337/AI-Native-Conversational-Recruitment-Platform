@@ -1,8 +1,93 @@
-{% extends 'base.html' %}
+{% extends "base_accounts.html" %}
+{% load static %}
 
-{% block content %}
-<div class="max-w-7xl mx-auto py-12 px-4">
-    <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
-    <p class="text-gray-600 mt-4">Welcome to your dashboard, {{ user.email }}.</p>
+{% block title %}Dashboard | Zizo Jobs{% endblock %}
+
+{% block accounts_content %}
+<div>
+    <!-- Welcome Banner -->
+    <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-8 mb-8 text-white">
+        <div class="flex items-center justify-between flex-wrap">
+            <div>
+                <h1 class="text-3xl font-bold mb-2">
+                    Welcome back, {{ user.get_full_name|default:user.username }}! 👋
+                </h1>
+                <p class="text-indigo-100">
+                    Here's what's happening with your {% if user.is_recruiter %}recruitment{% else %}job search{% endif %} today.
+                </p>
+            </div>
+            <div class="hidden md:block">
+                <i class="fas fa-chart-line text-5xl text-indigo-200"></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 hover:shadow-md transition">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm">Total Applications</p>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ total_applications|default:"0" }}</p>
+                </div>
+                <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                    <i class="fas fa-file-alt text-blue-600 dark:text-blue-400 text-xl"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 hover:shadow-md transition">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm">Interviews</p>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white">0</p>
+                </div>
+                <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                    <i class="fas fa-calendar-check text-green-600 dark:text-green-400 text-xl"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 hover:shadow-md transition">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm">Profile Views</p>
+                    <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ profile_views|default:"0" }}</p>
+                </div>
+                <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
+                    <i class="fas fa-eye text-purple-600 dark:text-purple-400 text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            <i class="fas fa-bolt mr-2 text-indigo-600 dark:text-indigo-400"></i>
+            Quick Actions
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {% if user.is_job_seeker %}
+                <a href="{% url 'job_list' %}" class="btn-primary text-center">
+                    <i class="fas fa-search mr-2"></i>
+                    Browse Jobs
+                </a>
+                <a href="#" class="btn-secondary text-center">
+                    <i class="fas fa-upload mr-2"></i>
+                    Update Resume
+                </a>
+            {% elif user.is_recruiter %}
+                <a href="{% url 'post_job' %}" class="btn-primary text-center">
+                    <i class="fas fa-plus-circle mr-2"></i>
+                    Post a New Job
+                </a>
+                <a href="#" class="btn-secondary text-center">
+                    <i class="fas fa-users mr-2"></i>
+                    View Candidates
+                </a>
+            {% endif %}
+        </div>
+    </div>
 </div>
 {% endblock %}
