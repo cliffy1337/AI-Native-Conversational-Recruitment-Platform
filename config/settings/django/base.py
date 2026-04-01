@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     "analytics",
     "chat",
     "feedback",
+    "corsheaders",
+
 ]
 
 MIDDLEWARE = [
@@ -61,7 +63,10 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = "config.urls"
 
