@@ -145,7 +145,7 @@ yarn-error.log*
 
 #Miscellaneous
 tree.txt
-push.py
+/push.py
 
 # ----------------------------------------
 # Proprietary AI / business logic protection
@@ -183,3 +183,4 @@ push.py
 
 # Premium frontend (React) — contains proprietary chat UI
 /frontend/
+node_modules/
