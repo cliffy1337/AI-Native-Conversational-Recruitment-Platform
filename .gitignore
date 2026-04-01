@@ -145,3 +145,40 @@ yarn-error.log*
 
 #Miscellaneous
 tree.txt
+
+# ----------------------------------------
+# Proprietary AI / business logic protection
+# ----------------------------------------
+
+# Chat AI orchestration & services
+/chat/services/ai_chat_handler.py
+/chat/services/intent.py
+/chat/services/response.py
+/chat/services/state.py
+/chat/services/context.py
+/chat/services/actions.py
+/chat/services/refinement.py
+/chat/services/fallback.py
+
+# Job building / matching logic
+/jobs/services/job_builder.py
+/jobs/services/matching.py
+/jobs/services/scoring.py
+/jobs/services/match_calculator.py
+/jobs/services/filter_updater.py
+
+# Application AI logic
+/applications/services/ai_match.py
+/applications/services/embeddings.py
+/applications/services/parser.py
+
+# Candidate profiling logic
+/candidates/services/profile_builder.py
+/candidates/services/query.py
+
+# Vector / embedding data (local caches)
+/search/services/*.bin
+/search/services/*.npy
+
+# Premium frontend (React) — contains proprietary chat UI
+/frontend/
