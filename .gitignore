@@ -154,6 +154,8 @@ tree.txt
 
 # Chat AI orchestration & services
 /chat/services/ai_chat_handler.py
+/chat/services/chat_orchestrator.py
+/chat/services/retrieval_service.py
 /chat/services/intent.py
 /chat/services/response.py
 /chat/services/state.py
@@ -163,6 +165,9 @@ tree.txt
 /chat/services/fallback.py
 
 # Job building / matching logic
+/jobs/services/ai_job_parser.py
+/jobs/services/job_services.py
+/jobs/services/recruiter_api.py
 /jobs/services/job_builder.py
 /jobs/services/matching.py
 /jobs/services/scoring.py
@@ -173,15 +178,27 @@ tree.txt
 /applications/services/ai_match.py
 /applications/services/embeddings.py
 /applications/services/parser.py
+/applications/services/s3_helpers.py
+/applications/services/parcers/
 
 # Candidate profiling logic
 /candidates/services/profile_builder.py
 /candidates/services/query.py
 
-# Vector / embedding data (local caches)
+# Search / vector logic
+/search/services/vector_search.py
 /search/services/*.bin
 /search/services/*.npy
+
+# Technical documentation (proprietary blueprints)
+/docs/
+
+# Third-party service configuration
+/config/settings/third_party/
 
 # Premium frontend (React) — contains proprietary chat UI
 /frontend/
 node_modules/
+
+# Deployment tooling
+/push.py
