@@ -1,0 +1,2 @@
+search/services/*.bin filter=lfs diff=lfs merge=lfs -text
+search/services/*.npy filter=lfs diff=lfs merge=lfs -text
